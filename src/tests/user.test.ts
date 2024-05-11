@@ -1,33 +1,96 @@
 import request from 'supertest';
 import dotenv from 'dotenv';
-import app, { startServer, stopServer } from '../index';
-import { mockUsers } from '../controllers/user.controller';
-import MongoDatabase from '../config/db';
+import app from '../index';
+import * as db from './db';
+import * as UserService from '../services/user.service';
+import { UserTypes } from '../utils/userTypes.enum';
 
 dotenv.config();
 
-const prefix = `${process.env.APP_URI}${process.env.APP_VERSION}`
+jest.mock('../services/user.service');
+
+const prefix = `${process.env.APP_URI}${process.env.APP_VERSION}`;
 
 describe('User router /users', () => {
-  beforeAll((done) => {
-    startServer(done);
+  beforeAll(async () => {
+    await db.connect();
   });
 
-  afterAll((done) => {
-    MongoDatabase.disconnect().then(() => {
-      stopServer(done);
-    });
+  afterEach(async () => {
+    await db.clearDatabase();
+  });
+
+  afterAll(async () => {
+    await db.closeDatabase();
   });
 
   it('GET / Find all users', async () => {
     const response = await request(app).get(prefix + '/users');
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockUsers);
+  });
+
+  it('GET / Find all users - Should handle errors', async () => {
+    (UserService.findAll as jest.Mock).mockImplementation(() => {
+      throw new Error('Failed to fetch users');
+    });
+
+    const res = await request(app).get(prefix + '/users');
+
+    expect(res.statusCode).toEqual(500);
+
+    expect(res.body).toEqual({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred',
+    });
   });
 
   it('POST / Create a new user', async () => {
-    const response = await request(app).post(prefix + '/users').send(mockUsers);
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockUsers);
+    const mockUser = {
+      username: 'testing01',
+      email: 'test@mail.com',
+      password: '123456789',
+      userType: UserTypes.Reader,
+    };
+
+    const expectedResult = {
+      ...mockUser,
+      id: '1',
+    };
+
+    (UserService.create as jest.Mock).mockImplementation(() =>
+      Promise.resolve(expectedResult),
+    );
+
+    const res = await request(app).post(prefix + '/users').send(mockUser);
+
+    expect(res.statusCode).toEqual(201);
+
+    expect(res.body).toEqual(expectedResult);
+  });
+
+  it('POST / Create a new user - Should handle errors', async () => {
+    const mockUser = {
+      username: 'testing01',
+      email: 'test@mail.com',
+      password: '123456789',
+      userType: UserTypes.Reader,
+    };
+
+    (UserService.create as jest.Mock).mockImplementation(() => {
+      throw new Error('Failed to create user');
+    });
+
+    const res = await request(app)
+      .post(prefix + '/users')
+      .send(mockUser);
+
+    expect(res.statusCode).toEqual(500);
+
+    expect(res.body).toEqual({
+      statusCode: 500,
+      error: 'Internal Server Error',
+      message: 'An internal server error occurred',
+    });
   });
 });
