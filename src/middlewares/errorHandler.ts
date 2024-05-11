@@ -19,7 +19,7 @@ export function wrapErrors(err: Boom, _req: Request, _res: Response, next: NextF
   next(err);
 }
 
-export function errorHandler(err: Boom, _req: Request, res: Response): void {
+export function errorHandler(err: Boom, _req: Request, res: Response, _next: NextFunction): void {
   const { output: { statusCode, payload } } = err;
   res.status(statusCode);
   res.json(payload);
