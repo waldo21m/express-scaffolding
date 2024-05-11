@@ -2,19 +2,19 @@ import { IUser } from '../interfaces/User.interface';
 import User from '../models/User.model';
 
 export const findAll = async (offset: number, limit: number) => {
-  const users = await User.find({ isDeleted: false }).skip(offset).limit(limit);
+  const users = await User.find({ isDeleted: false }).skip(offset).limit(limit).exec();
 
   return users;
 };
 
 export const findById = async (id: string) => {
-  const users = await User.findOne({ _id: id, isDeleted: false });
+  const users = await User.findOne({ _id: id, isDeleted: false }).exec();
 
   return users;
 };
 
 export const findByEmail = async (email: string) => {
-  const users = await User.findOne({ email, isDeleted: false });
+  const users = await User.findOne({ email, isDeleted: false }).exec();
 
   return users;
 };
@@ -33,13 +33,13 @@ export const update = async (id: string, user: Partial<IUser>) => {
       isDeleted: false
     },
     user
-  );
+  ).exec();
 };
 
 export const softDelete = async (id: string) => {
-  return User.updateOne({ _id: id }, { isDeleted: true });
+  return User.updateOne({ _id: id }, { isDeleted: true }).exec();
 };
 
 export const hardDelete = async (id: string) => {
-  return User.deleteOne({ _id: id });
+  return User.deleteOne({ _id: id }).exec();
 };
