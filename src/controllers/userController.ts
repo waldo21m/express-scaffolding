@@ -17,6 +17,13 @@ const findAll = (_: Request, res: Response) => {
   return res.json(mockUsers);
 };
 
+const create = (req: Request, res: Response) => {
+  const newUser = req.body;
+
+  return res.json(newUser);
+};
+
 export default {
   findAll,
+  create,
 };

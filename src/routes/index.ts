@@ -1,8 +1,12 @@
+import dotenv from 'dotenv';
 import { Router } from 'express';
 import userRouter from './userRouter';
 
+dotenv.config();
 const router = Router();
 
-router.use('/users', userRouter);
+const prefix = `${process.env.APP_URI}${process.env.APP_VERSION}`
+
+router.use(prefix + '/users', userRouter);
 
 export default router;
