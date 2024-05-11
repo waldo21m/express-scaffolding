@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import router from './routes/index.routes';
 import http from 'http';
 import MongoDatabase from './config/db';
+import { errorHandler, logErrors, wrapErrors } from './middlewares/errorHandler';
 
 dotenv.config();
 
@@ -38,6 +39,15 @@ app.use(morgan('dev'));
 
 // Using the main router for handling requests.
 app.use(router);
+
+// Error Logger
+app.use(logErrors);
+
+// Wrapping Errors
+app.use(wrapErrors);
+
+// Error handler
+app.use(errorHandler);
 
 let server: http.Server;
 
