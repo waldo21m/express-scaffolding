@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import router from './routes';
 import http from 'http';
+import MongoDatabase from './config/db';
 
 dotenv.config();
 
@@ -40,7 +41,8 @@ app.use(router);
 
 let server: http.Server;
 
-export const startServer = (callback: () => void) => {
+export const startServer = async (callback: () => void) => {
+  await MongoDatabase.getInstance()
   server = app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
     callback();

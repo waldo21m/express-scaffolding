@@ -2,6 +2,7 @@ import request from 'supertest';
 import dotenv from 'dotenv';
 import app, { startServer, stopServer } from '../index';
 import { mockUsers } from '../controllers/userController';
+import MongoDatabase from '../config/db';
 
 dotenv.config();
 
@@ -13,7 +14,9 @@ describe('User router /users', () => {
   });
 
   afterAll((done) => {
-    stopServer(done);
+    MongoDatabase.disconnect().then(() => {
+      stopServer(done);
+    });
   });
 
   it('GET / Find all users', async () => {
