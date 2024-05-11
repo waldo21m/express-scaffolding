@@ -1,7 +1,7 @@
 import request from 'supertest';
 import dotenv from 'dotenv';
 import app, { startServer, stopServer } from '../index';
-import { mockUsers } from '../controllers/userController';
+import { mockUsers } from '../controllers/user.controller';
 import MongoDatabase from '../config/db';
 
 dotenv.config();

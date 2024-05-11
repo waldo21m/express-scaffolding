@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
-import router from './routes';
+import router from './routes/index.routes';
 import http from 'http';
 import MongoDatabase from './config/db';
 
