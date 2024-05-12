@@ -62,11 +62,34 @@ describe('User router /users', () => {
       Promise.resolve(expectedResult),
     );
 
-    const res = await request(app).post(prefix + '/users').send(mockUser);
+    const res = await request(app)
+      .post(prefix + '/users')
+      .send(mockUser);
 
     expect(res.statusCode).toEqual(201);
 
     expect(res.body).toEqual(expectedResult);
+  });
+
+  it('POST / Create a new user - Should return an error if the user schema is invalid', async () => {
+    const mockUser = {
+      username: 'testing01',
+      email: 'test@mail.com',
+      password: '123456789',
+      userType: 'Anything',
+    };
+
+    const res = await request(app)
+      .post(prefix + '/users')
+      .send(mockUser);
+
+    expect(res.statusCode).toEqual(400);
+
+    expect(res.body).toEqual({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'ValidationError: "userType" must be one of [Lector, Creador]',
+    });
   });
 
   it('POST / Create a new user - Should return an error if the user already exists', async () => {
@@ -77,16 +100,20 @@ describe('User router /users', () => {
       userType: UserTypes.Reader,
     };
 
-    (UserService.findByEmailOrUsername as jest.Mock).mockImplementation(() => Promise.resolve(mockUser));
+    (UserService.findByEmailOrUsername as jest.Mock).mockImplementation(() =>
+      Promise.resolve(mockUser),
+    );
 
-    const res = await request(app).post(prefix + '/users').send(mockUser);
+    const res = await request(app)
+      .post(prefix + '/users')
+      .send(mockUser);
 
     expect(res.statusCode).toEqual(400);
 
     expect(res.body).toEqual({
       statusCode: 400,
       error: 'Bad Request',
-      message: 'The user already exists'
+      message: 'The user already exists',
     });
   });
 
