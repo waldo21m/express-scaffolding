@@ -19,6 +19,13 @@ export const findByEmail = async (email: string) => {
   return users;
 };
 
+export const findByEmailOrUsername = async (email: string, username: string) => {
+  return await User.findOne({
+    $or: [{ email }, { username }],
+    isDeleted: false,
+  }).exec();
+};
+
 export const create = async (user: IUser) => {
   const newUser = new User(user);
   const savedUser = await newUser.save();

@@ -69,6 +69,27 @@ describe('User router /users', () => {
     expect(res.body).toEqual(expectedResult);
   });
 
+  it('POST / Create a new user - Should return an error if the user already exists', async () => {
+    const mockUser = {
+      username: 'testing01',
+      email: 'test@mail.com',
+      password: '123456789',
+      userType: UserTypes.Reader,
+    };
+
+    (UserService.findByEmailOrUsername as jest.Mock).mockImplementation(() => Promise.resolve(mockUser));
+
+    const res = await request(app).post(prefix + '/users').send(mockUser);
+
+    expect(res.statusCode).toEqual(400);
+
+    expect(res.body).toEqual({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'The user already exists'
+    });
+  });
+
   it('POST / Create a new user - Should handle errors', async () => {
     const mockUser = {
       username: 'testing01',
@@ -76,6 +97,10 @@ describe('User router /users', () => {
       password: '123456789',
       userType: UserTypes.Reader,
     };
+
+    (UserService.findByEmailOrUsername as jest.Mock).mockImplementation(() =>
+      Promise.resolve(null),
+    );
 
     (UserService.create as jest.Mock).mockImplementation(() => {
       throw new Error('Failed to create user');

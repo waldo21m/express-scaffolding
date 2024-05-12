@@ -9,5 +9,6 @@ declare namespace NodeJS {
     PORT: string;
     APP_VERSION: string;
     APP_URI: string;
+    BCRYPT_SALT_ROUNDS: string;
   }
 }
